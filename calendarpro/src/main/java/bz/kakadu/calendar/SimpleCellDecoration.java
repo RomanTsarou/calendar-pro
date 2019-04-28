@@ -1,12 +1,13 @@
 package bz.kakadu.calendar;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.CallSuper;
-import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.view.View;
+
+import static bz.kakadu.calendar.CalendarTheme.getColor;
 
 /**
  * Created on 09.11.2016
@@ -14,51 +15,70 @@ import android.view.View;
  * @author Roman Tsarou
  */
 public class SimpleCellDecoration implements ICellDecoration {
-    private static final float SCALE_TEXT = .34f;
-    private final Day today = Day.today();
-    public final Paint paintDay;
-    public final Paint paintToday;
-    @ColorInt
-    public int textColor;
-    public boolean isShowToday = true;
-    public float circleTodayScale = .8f;
-    public float textScale = SCALE_TEXT;
+    protected final Day today = Day.today();
+    protected final Paint paintDay;
+    protected final Paint paintToday;
+    protected final Paint paintHeader;
+    protected final Paint paintTodayCircle;
+    protected CalendarTheme theme;
 
-    public SimpleCellDecoration(Context context) {
-        paintToday = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paintToday.setStyle(Paint.Style.STROKE);
+    public SimpleCellDecoration() {
         paintDay = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintDay.setTextAlign(Paint.Align.CENTER);
-        textColor = DrawUtils.getPrimaryTextColor(context, true);
-        paintToday.setStrokeWidth(context.getResources().getDisplayMetrics().density * 1);
+        paintToday = new Paint(paintDay);
+        paintHeader = new Paint(paintDay);
+        paintTodayCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintTodayCircle.setStyle(Paint.Style.STROKE);
     }
 
+
+    @Override
+    public void setCalendarTheme(@NonNull CalendarTheme theme) {
+        this.theme = theme;
+        paintHeader.setColor(theme.headerTextColor);
+        paintTodayCircle.setStrokeWidth(theme.todayCircleStrokeWidth);
+        paintToday.setFakeBoldText(theme.todayBold);
+        paintDay.setFakeBoldText(theme.dateTextBold);
+        paintHeader.setFakeBoldText(theme.headerTextBold);
+    }
 
     @Override
     @CallSuper
     public void onPreDraw(View parent, Canvas canvas, float cellWidth, float cellHeight) {
+        if (theme.todayShow) {
+            today.set(Day.todayHash());
+        }
         final float minSize = Math.min(cellHeight, cellWidth);
-        paintDay.setTextSize(minSize * textScale);
-        paintDay.setColor(textColor);
-        paintToday.setColor(textColor);
+        paintDay.setTextSize(minSize * theme.dateTextScale);
+        paintToday.setTextSize(paintDay.getTextSize());
+        paintHeader.setTextSize(minSize * theme.headerTextScale);
     }
 
     @Override
     public void onCellDraw(View parent, Cell cell, Canvas canvas, RectF bounds) {
-        DrawUtils.drawText(cell.getValue(), paintDay, canvas, bounds);
-        if (isShowToday && today.equals(cell.getDay())) {
-            DrawUtils.drawCircle(paintToday, canvas, bounds, circleTodayScale);
+        if (cell.day.hashCode() == 0) {
+            DrawUtils.drawText(cell.getValue(), paintHeader, canvas, bounds);
+        } else {
+            final boolean isEnabled = isEnabled(cell.day);
+            if (theme.todayShow && today.equals(cell.getDay())) {
+                paintTodayCircle.setColor(getColor(theme.todayCircleStrokeColor, isEnabled));
+                DrawUtils.drawCircle(paintTodayCircle, canvas, bounds, theme.todayCircleScale);
+            }
+            DrawUtils.drawText(cell.getValue(), getDayTextPaint(cell.day), canvas, bounds);
         }
     }
 
-    /**
-     * May be call {@link MonthView#invalidateAll(Context)} after.
-     */
-    public void updateToday() {
-        today.set(Day.todayHash());
+    protected Paint getDayTextPaint(Day day) {
+        if (today.equals(day) && theme.todayShow) {
+            paintToday.setColor(getColor(theme.todayTextColor, isEnabled(day)));
+            return paintToday;
+        }
+        paintDay.setColor(getColor(theme.dateTextColor, isEnabled(day)));
+        return paintDay;
     }
 
-    public int getTodayHash() {
-        return today.hashCode();
+    protected boolean isEnabled(Day day) {
+        return true;
     }
+
 }

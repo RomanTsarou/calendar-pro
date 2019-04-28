@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
@@ -45,7 +46,7 @@ public class MonthView extends View {
     private int mYear;
     private OnDayClickListener mOnDayClickListener;
     private boolean isShowHeader = true;
-    public boolean alwaysSixWeekRows = false;
+    private boolean alwaysSixWeekRows = false;
     private final GestureDetector.SimpleOnGestureListener mOnGestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
@@ -67,29 +68,7 @@ public class MonthView extends View {
         this(context, null);
     }
 
-    public MonthView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mDayItems = new Cell[7 * 6];
-        for (int i = 0; i < mDayItems.length; i++) {
-            mDayItems[i] = new Cell();
-        }
-        if (isInEditMode()) {
-            addDecoration(new SimpleCellDecoration(context));
-            setMonth(mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.YEAR));
-        }
-        mDetector = new GestureDetectorCompat(context, mOnGestureListener);
-
-
-        mHeaderItems = new Cell[7];
-        for (int i = 0; i < mHeaderItems.length; i++) {
-            mHeaderItems[i] = new Cell();
-            int dayOfWeek = i + mCalendar.getFirstDayOfWeek();
-            if (dayOfWeek > Calendar.SATURDAY) {
-                dayOfWeek -= Calendar.SATURDAY;
-            }
-            mHeaderItems[i].value = getDayName(dayOfWeek);
-        }
-    }
+    private CalendarTheme calendarTheme;
 
     /**
      * @param dayOfWeek from {@link Calendar#SUNDAY} to {@link Calendar#SATURDAY}
@@ -139,8 +118,48 @@ public class MonthView extends View {
         return NONE;
     }
 
+    public MonthView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mDayItems = new Cell[7 * 6];
+        for (int i = 0; i < mDayItems.length; i++) {
+            mDayItems[i] = new Cell();
+        }
+        if (isInEditMode()) {
+            addDecoration(new SimpleCellDecoration());
+            setMonth(mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.YEAR));
+        }
+        mDetector = new GestureDetectorCompat(context, mOnGestureListener);
+
+
+        mHeaderItems = new Cell[7];
+        for (int i = 0; i < mHeaderItems.length; i++) {
+            mHeaderItems[i] = new Cell();
+            int dayOfWeek = i + mCalendar.getFirstDayOfWeek();
+            if (dayOfWeek > Calendar.SATURDAY) {
+                dayOfWeek -= Calendar.SATURDAY;
+            }
+            mHeaderItems[i].value = getDayName(dayOfWeek);
+        }
+    }
+
+    public void setCalendarTheme(@NonNull CalendarTheme theme) {
+        calendarTheme = theme;
+        alwaysSixWeekRows = calendarTheme.alwaysSixWeeks;
+        isShowHeader = calendarTheme.headerShow;
+        for (ICellDecoration decoration : mDecorations) {
+            decoration.setCalendarTheme(theme);
+        }
+        requestLayout();
+        invalidate();
+    }
+
     public void addDecoration(ICellDecoration decoration) {
         if (mDecorations.add(decoration)) {
+            if (calendarTheme == null) {
+                setCalendarTheme(new CalendarTheme(getContext()));
+            } else {
+                decoration.setCalendarTheme(calendarTheme);
+            }
             invalidate();
         }
 
@@ -184,8 +203,6 @@ public class MonthView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
-
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int maxHeight = MeasureSpec.getSize(heightMeasureSpec);
         int rowCount = (alwaysSixWeekRows ? 6 : mWeekCount) + (isShowHeader ? 1 : 0);
@@ -251,18 +268,6 @@ public class MonthView extends View {
 
     public void setOnDayClickListener(OnDayClickListener onDayClickListener) {
         this.mOnDayClickListener = onDayClickListener;
-    }
-
-    public boolean isShowHeader() {
-        return isShowHeader;
-    }
-
-    public void setShowHeader(boolean showHeader) {
-        if (showHeader != isShowHeader) {
-            isShowHeader = showHeader;
-            requestLayout();
-            invalidate();
-        }
     }
 
     public void setCellHeight(float cellHeight) {

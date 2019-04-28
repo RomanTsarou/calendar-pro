@@ -1,9 +1,9 @@
 package bz.kakadu.calendar;
 
-import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.RectF;
-import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.ColorUtils;
 import android.view.SoundEffectConstants;
@@ -13,57 +13,82 @@ public class RangeCellDecoration extends SimpleCellDecoration implements OnDayCl
     public enum Mode {RANGE, SINGLE}
 
     public Mode mode = Mode.RANGE;
-    public int rangeEdgesColor;
-    public float rangeEdgesHeightScale = circleTodayScale;
-    @ColorInt
-    public int rangeColor;
-    @ColorInt
-    public int disableTextColor;
-    @ColorInt
-    public int rangeTextColor;
-    public float rangeHeightScale = rangeEdgesHeightScale * .9f;
-    @ColorInt
-    public int headerTextColor;
-    public float headerTextScale = textScale * .6f;
-    public boolean headerTextBold = true;
     private Integer minRangeDay = null;
     private Integer maxRangeDay = null;
     private Integer fromDay = null;
     private Integer toDay = null;
+    private final Paint paintRangeEdges;
+    private final Paint paintRangeEdgesText;
+    private final Paint paintRangeText;
+    private int paintRangeColor;
 
 
-    public RangeCellDecoration(Context context) {
-        super(context);
-        disableTextColor = DrawUtils.getPrimaryTextColor(context, false);
-        headerTextColor = DrawUtils.getSecondaryTextColor(context, true);
-        rangeEdgesColor = DrawUtils.getAttrColor(context, R.attr.colorAccent);
-        rangeTextColor = DrawUtils.getAttrColor(context, android.R.attr.textColorPrimaryInverse);
-        rangeColor = ColorUtils.setAlphaComponent(rangeEdgesColor, 100);
+    public RangeCellDecoration() {
+        super();
+        paintRangeEdges = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintRangeEdgesText = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintRangeEdgesText.setTextAlign(Paint.Align.CENTER);
+        paintRangeText = new Paint(paintRangeEdgesText);
+    }
+
+    @Override
+    public void setCalendarTheme(@NonNull CalendarTheme theme) {
+        super.setCalendarTheme(theme);
+        paintRangeEdges.setColor(theme.rangeEdgesColor);
+        paintRangeColor = ColorUtils.setAlphaComponent(theme.rangeColor, (int) (255 * theme.rangeAlpha));
+        paintRangeEdgesText.setColor(theme.rangeEdgesTextColor);
+        paintRangeText.setColor(theme.rangeTextColor);
+        paintRangeEdgesText.setFakeBoldText(paintDay.isFakeBoldText());
+        paintRangeText.setFakeBoldText(paintDay.isFakeBoldText());
+
+    }
+
+    @Override
+    public void onPreDraw(View parent, Canvas canvas, float cellWidth, float cellHeight) {
+        super.onPreDraw(parent, canvas, cellWidth, cellHeight);
+        paintRangeEdgesText.setTextSize(paintDay.getTextSize());
+        paintRangeText.setTextSize(paintDay.getTextSize());
     }
 
     @Override
     public void onCellDraw(View parent, Cell cell, Canvas canvas, RectF bounds) {
-        final boolean isHeaderCell = cell.day.hashCode() == 0;
-        paintDay.setFakeBoldText(isHeaderCell && headerTextBold);
-        paintDay.setTextSize(Math.min(bounds.height(), bounds.width()) * (isHeaderCell ? headerTextScale : textScale));
-        final int textColor;
-        if (isHeaderCell) {
-            textColor = headerTextColor;
-        } else {
-            textColor = getTextColor(cell.day.hashCode());
+        int dayHash = cell.day.hashCode();
+        int rangeType = getRangeType(dayHash);
+        if (rangeType != -1) {
+            DrawUtils.drawPeriod(rangeType, paintRangeColor, canvas, bounds, theme.rangeScale);
         }
-        paintDay.setColor(textColor);
-        if (textColor == rangeTextColor) {
-            final int rangeType = getRangeType(cell.day.hashCode());
-            if (rangeType != -1) {
-                DrawUtils.drawPeriod(rangeType, rangeColor, canvas, bounds, rangeHeightScale);
-            }
-            if ((fromDay != null && cell.day.hashCode() == fromDay)
-                    || (toDay != null && cell.day.hashCode() == toDay)) {
-                DrawUtils.drawCircle(rangeEdgesColor, canvas, bounds, rangeEdgesHeightScale);
+        final boolean isEdge = (fromDay != null && cell.day.hashCode() == fromDay)
+                || (toDay != null && cell.day.hashCode() == toDay);
+        if (isEdge) {
+            if (theme.rangeEdgesShow) {
+                DrawUtils.drawCircle(theme.rangeEdgesColor, canvas, bounds, theme.rangeEdgesScale);
             }
         }
         super.onCellDraw(parent, cell, canvas, bounds);
+    }
+
+    @Override
+    protected Paint getDayTextPaint(Day day) {
+        final boolean isEdge = (fromDay != null && day.hashCode() == fromDay)
+                || (toDay != null && day.hashCode() == toDay);
+        if (isEdge && theme.rangeEdgesShow) {
+            if (theme.todayShow && today.equals(day)) {
+                paintToday.setColor(paintRangeEdgesText.getColor());
+                return paintToday;
+            } else {
+                return paintRangeEdgesText;
+            }
+        }
+        final int rangeType = getRangeType(day.hashCode());
+        if (rangeType != -1) {
+            if (theme.todayShow && today.equals(day)) {
+                paintToday.setColor(paintRangeText.getColor());
+                return paintToday;
+            } else {
+                return paintRangeText;
+            }
+        }
+        return super.getDayTextPaint(day);
     }
 
     public void setBoundsRange(@Nullable Day min, @Nullable Day max) {
@@ -105,22 +130,21 @@ public class RangeCellDecoration extends SimpleCellDecoration implements OnDayCl
         }
     }
 
-    private int getRangeType(int day) {
-        if (fromDay == null || toDay == null || fromDay.equals(toDay) || mode == Mode.SINGLE)
-            return -1;
-        if (fromDay == day) return DrawUtils.START;
-        if (toDay == day) return DrawUtils.END;
-        return DrawUtils.MIDDLE;
+    @Override
+    protected boolean isEnabled(Day day) {
+        if (minRangeDay != null && day.hashCode() < minRangeDay) return false;
+        if (maxRangeDay != null && day.hashCode() > maxRangeDay) return false;
+        return true;
     }
 
-    private int getTextColor(int day) {
-        if (minRangeDay != null && day < minRangeDay) return disableTextColor;
-        if (maxRangeDay != null && day > maxRangeDay) return disableTextColor;
-        if (fromDay != null && day == fromDay) return rangeTextColor;
-        if (toDay != null && day == toDay) return rangeTextColor;
-        if (fromDay != null && toDay != null && day > fromDay && day < toDay)
-            return rangeTextColor;
-        return textColor;
+    private int getRangeType(int day) {
+        if (fromDay == null) return -1;
+        if (fromDay == day && (mode == Mode.SINGLE || toDay == null)) return DrawUtils.SINGLE;
+        if (toDay == null) return -1;
+        if (fromDay == day) return DrawUtils.START;
+        if (toDay == day) return DrawUtils.END;
+        if (day > fromDay && day < toDay) return DrawUtils.MIDDLE;
+        return -1;
     }
 
     @Nullable
@@ -135,9 +159,8 @@ public class RangeCellDecoration extends SimpleCellDecoration implements OnDayCl
 
     @Override
     public void onDayClick(View dayView, Day day) {
+        if (!isEnabled(day)) return;
         int dayHash = day.hashCode();
-        if (minRangeDay != null && (dayHash < minRangeDay)) return;
-        if (maxRangeDay != null && (dayHash > maxRangeDay)) return;
         if (fromDay != null && dayHash == fromDay && toDay == null) return;
         if (fromDay != null && dayHash == fromDay && mode == Mode.SINGLE) return;
         if (fromDay == null || mode == Mode.SINGLE) {

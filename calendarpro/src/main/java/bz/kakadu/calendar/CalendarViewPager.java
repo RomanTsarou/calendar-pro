@@ -1,7 +1,6 @@
 package bz.kakadu.calendar;
 
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
@@ -22,14 +21,15 @@ import java.util.Locale;
 public class CalendarViewPager extends FrameLayout {
     private final int startYear = 1900;
     private final int endYear = 2100;
-    private final SimpleDateFormat titleFormat = new SimpleDateFormat("MMMM, yyyy", Locale.getDefault());
-    private final ViewPager viewPager;
-    private final View header;
-    private final View prevBtn;
-    private final View nextBtn;
+    public final ViewPager viewPager;
+    public final View header;
+    public final View prevBtn;
+    public final View nextBtn;
+    public final CalendarTheme theme;
     public OnDayClickListener onDayClickListener;
     private List<ICellDecoration> decorations = new ArrayList<>();
     private Calendar calendar = Calendar.getInstance();
+    public SimpleDateFormat titleFormat;
 
     public CalendarViewPager(@NonNull Context context) {
         this(context, null);
@@ -37,11 +37,14 @@ public class CalendarViewPager extends FrameLayout {
 
     public CalendarViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        inflate(context, R.layout.view_calendar_pager, this);
+        theme = new CalendarTheme(context);
+        theme.alwaysSixWeeks = true;
+        titleFormat = new SimpleDateFormat(theme.calendarTitleDateFormat, Locale.getDefault());
+        inflate(theme.getThemedContext(context), R.layout.calendar_view_pager, this);
         viewPager = findViewById(R.id.view_pager);
-        header = findViewById(R.id.month_page_header);
-        prevBtn = header.findViewById(R.id.prev_month_btn);
-        nextBtn = header.findViewById(R.id.next_month_btn);
+        header = findViewById(R.id.calendar_month_title_layout);
+        prevBtn = header.findViewById(R.id.calendar_prev_month_btn);
+        nextBtn = header.findViewById(R.id.calendar_next_month_btn);
         viewPager.setAdapter(new MonthAdapter());
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
@@ -103,11 +106,11 @@ public class CalendarViewPager extends FrameLayout {
             calendar.add(Calendar.MONTH, position);
             day.set(calendar);
             View page = LayoutInflater.from(container.getContext()).inflate(R.layout.calendar_pager_page, container, false);
-            MonthView monthView = page.findViewById(R.id.month_view);
-            TextView title = page.findViewById(R.id.month_title);
+            TextView title = page.findViewById(R.id.calendar_month_title);
             title.setText(getPageTitle(position));
+            MonthView monthView = page.findViewById(R.id.calendar_month_view);
+            monthView.setCalendarTheme(theme);
             monthView.setMonth(day);
-            monthView.alwaysSixWeekRows = true;
             monthView.setOnDayClickListener(onDayClickListener);
             for (ICellDecoration decoration : decorations) {
                 monthView.addDecoration(decoration);
@@ -136,15 +139,7 @@ public class CalendarViewPager extends FrameLayout {
         public CharSequence getPageTitle(int position) {
             calendar.set(startYear, 0, 1);
             calendar.add(Calendar.MONTH, position);
-            String title;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                String name = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG_STANDALONE, Locale.getDefault());
-                title = name + ", " + calendar.get(Calendar.YEAR);
-            } else {
-                title = titleFormat.format(calendar.getTime());
-            }
-            title = title.substring(0, 1).toUpperCase() + title.substring(1);
-            return title;
+            return titleFormat.format(calendar.getTime());
         }
     }
 }

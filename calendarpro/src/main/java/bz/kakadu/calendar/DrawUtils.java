@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
  * @author Roman Tsarou
  */
 public final class DrawUtils {
-    public static final int START = 0, MIDDLE = 1, END = 2;
+    public static final int START = 0, MIDDLE = 1, END = 2, SINGLE = 3;
     private static final Paint PAINT = new Paint(Paint.ANTI_ALIAS_FLAG);
     private static final Path PATH = new Path();
     private static final Path PATH2 = new Path();
@@ -99,6 +99,10 @@ public final class DrawUtils {
     }
 
     public static void drawPeriod(@PeriodType int periodType, Paint paint, Canvas canvas, RectF bounds, float scale) {
+        if (periodType == SINGLE) {
+            drawCircle(paint, canvas, bounds, scale);
+            return;
+        }
         final float size = Math.min(bounds.height(), bounds.width()) * scale;
         final float paddingHor = (1f * bounds.width() - size) / 2f;
         final float paddingVer = (1f * bounds.height() - size) / 2f;
@@ -144,7 +148,7 @@ public final class DrawUtils {
             case START:
                 PATH2.lineTo(bounds.centerX(), bounds.top);
                 PATH2.lineTo(bounds.right, bounds.top);
-                drawCircle(paint, canvas, bounds, scale);
+//                drawCircle(paint, canvas, bounds, scale);
                 break;
             case MIDDLE:
                 PATH2.lineTo(bounds.right, bounds.top);
@@ -153,22 +157,29 @@ public final class DrawUtils {
             case END:
                 PATH2.lineTo(bounds.centerX(), bounds.top);
                 PATH2.lineTo(bounds.left, bounds.top);
-                drawCircle(paint, canvas, bounds, scale);
+//                drawCircle(paint, canvas, bounds, scale);
+                break;
+            case SINGLE:
                 break;
             default:
                 throw new IllegalArgumentException();
         }
-        PATH.op(PATH2, Path.Op.INTERSECT);
+        if (periodType != SINGLE) {
+            PATH.op(PATH2, Path.Op.INTERSECT);
+        }
         canvas.drawPath(PATH, paint);
     }
+
     @ColorInt
     public static int getPrimaryTextColor(Context context, boolean enabled) {
         return getAttrColor(context, android.R.attr.textColorPrimary, enabled);
     }
+
     @ColorInt
     public static int getSecondaryTextColor(Context context, boolean enabled) {
         return getAttrColor(context, android.R.attr.textColorSecondary, enabled);
     }
+
     @ColorInt
     public static int getAttrColor(Context context, @AttrRes int attr, boolean enabled) {
         TypedArray themeArray = context.getTheme().obtainStyledAttributes(new int[]{attr});
@@ -185,12 +196,13 @@ public final class DrawUtils {
             themeArray.recycle();
         }
     }
+
     @ColorInt
     public static int getAttrColor(Context context, @AttrRes int attr) {
         return getAttrColor(context, attr, true);
     }
 
-    @IntDef({START, MIDDLE, END})
+    @IntDef({START, MIDDLE, END, SINGLE})
     @Retention(RetentionPolicy.SOURCE)
     @interface PeriodType {
     }

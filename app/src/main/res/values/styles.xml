@@ -6,6 +6,23 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="calendarTheme">@style/CalendarTheme.App</item>
     </style>
 
+    <style name="CalendarTheme.App">
+        <item name="calendarRangeColor">?colorPrimary</item>
+        <item name="calendarRangeScale">80%</item>
+        <item name="calendarRangeEdgesColor">?colorPrimary</item>
+        <item name="calendarTodayBold">true</item>
+        <item name="calendarTodayCircleStrokeWidth">3dp</item>
+        <item name="calendarTodayCircleStrokeColor">?colorAccent</item>
+        <item name="calendarTodayTextColor">?colorAccent</item>
+        <item name="calendarTitleLayoutStyle">@style/CalendarTitleLayoutStyle.App</item>
+    </style>
+
+    <style name="CalendarTitleLayoutStyle.App">
+        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="android:background">?colorPrimary</item>
+        <item name="android:elevation">4dp</item>
+    </style>
 </resources>

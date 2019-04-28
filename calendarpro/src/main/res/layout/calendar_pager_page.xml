@@ -5,17 +5,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/month_title"
-        android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center"
-        android:textAppearance="?textAppearanceListItem"
-        tools:text="Jan 2019" />
+    <LinearLayout
+        style="?calendarTitleLayoutStyle"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/calendar_month_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="?calendarTitleTextAppearance"
+            tools:text="Jan 2019" />
+    </LinearLayout>
+
 
     <bz.kakadu.calendar.MonthView
-        android:id="@+id/month_view"
+        android:id="@+id/calendar_month_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </LinearLayout>

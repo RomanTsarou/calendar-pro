@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="calendarTheme" format="reference" />
+
+    <declare-styleable name="CalendarTheme">
+        <attr name="calendarAlwaysSixWeeks" format="boolean" />
+        <!--header-->
+        <attr name="calendarHeaderShow" format="boolean" />
+        <attr name="calendarHeaderTextBold" format="boolean" />
+        <attr name="calendarHeaderTextColor" format="color" />
+        <attr name="calendarHeaderTextScale" format="fraction" />
+        <!--title-->
+        <attr name="calendarTitleLayoutStyle" format="reference" />
+        <attr name="calendarTitleTextAppearance" format="reference" />
+        <attr name="calendarTitleButtonStyle" format="reference" />
+        <attr name="calendarTitleDateFormat" format="string" />
+        <!--date text-->
+        <attr name="calendarDateTextBold" format="boolean" />
+        <attr name="calendarDateTextColor" format="color" />
+        <attr name="calendarDateTextScale" format="fraction" />
+        <!--range-->
+        <attr name="calendarRangeTextColor" format="color" />
+        <attr name="calendarRangeEdgesColor" format="color" />
+        <attr name="calendarRangeEdgesTextColor" format="color" />
+        <attr name="calendarRangeColor" format="color" />
+        <attr name="calendarRangeAlpha" format="fraction" />
+        <attr name="calendarRangeEdgesShow" format="boolean" />
+        <attr name="calendarRangeEdgesScale" format="fraction" />
+        <attr name="calendarRangeScale" format="fraction" />
+        <!--today-->
+        <attr name="calendarTodayShow" format="boolean" />
+        <attr name="calendarTodayBold" format="boolean" />
+        <attr name="calendarTodayTextColor" format="color" />
+        <attr name="calendarTodayCircleStrokeColor" format="color" />
+        <attr name="calendarTodayCircleStrokeWidth" format="dimension" />
+        <attr name="calendarTodayCircleScale" format="fraction" />
+    </declare-styleable>
+
+
+    <style name="CalendarTheme" parent="ThemeOverlay.AppCompat">
+        <item name="calendarAlwaysSixWeeks">false</item>
+        <item name="calendarHeaderShow">true</item>
+        <item name="calendarHeaderTextBold">true</item>
+        <item name="calendarHeaderTextColor">?android:textColorSecondary</item>
+        <item name="calendarHeaderTextScale">20%</item>
+        <item name="calendarTitleLayoutStyle">@style/CalendarTitleLayoutStyle</item>
+        <item name="calendarTitleTextAppearance">@style/CalendarTitleTextAppearance</item>
+        <item name="calendarTitleButtonStyle">@style/CalendarTitleButtonStyle</item>
+        <item name="calendarDateTextBold">false</item>
+        <item name="calendarDateTextColor">?android:textColorPrimary</item>
+        <item name="calendarDateTextScale">34%</item>
+        <item name="calendarRangeTextColor">?android:textColorPrimaryInverse</item>
+        <item name="calendarRangeEdgesColor">?colorAccent</item>
+        <item name="calendarRangeEdgesTextColor">?android:textColorPrimaryInverse</item>
+        <item name="calendarRangeColor">?colorAccent</item>
+        <item name="calendarRangeAlpha">50%</item>
+        <item name="calendarRangeEdgesShow">true</item>
+        <item name="calendarRangeEdgesScale">80%</item>
+        <item name="calendarRangeScale">74%</item>
+        <item name="calendarTodayShow">true</item>
+        <item name="calendarTodayBold">false</item>
+        <item name="calendarTodayTextColor">?android:textColorPrimary</item>
+        <item name="calendarTodayCircleStrokeColor">?android:textColorPrimary</item>
+        <item name="calendarTodayCircleStrokeWidth">1dp</item>
+        <item name="calendarTodayCircleScale">80%</item>
+        <item name="calendarTitleDateFormat">LLLL, yyyy</item>
+    </style>
+
+    <style name="CalendarTitleLayoutStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">?actionBarSize</item>
+        <item name="android:minHeight">?actionBarSize</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="CalendarTitleButtonStyle" parent="Widget.AppCompat.ActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="CalendarTitleTextAppearance" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">16sp</item>
+    </style>
+</resources>
