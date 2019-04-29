@@ -1,5 +1,5 @@
 # calendar-pro
-[![Release](https://jitpack.io/v/kakadu-dev/calendar-pro.svg)](https://jitpack.io/#kakadu-dev/calendar-pro)
+[![Release](https://jitpack.io/v/RomanTsarou/calendar-pro.svg)](https://jitpack.io/#RomanTsarou/calendar-pro)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 
 ![Files app](assets/screen.webp)
@@ -16,7 +16,7 @@ repositories {
 }
 
  dependencies {
-   debugImplementation 'com.github.RomanTsarou:calendar-pro:1.0.1'
+   implementation 'com.github.RomanTsarou:calendar-pro:1.0.1'
  }
 ```
 
