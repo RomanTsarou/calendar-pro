@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2019 Roman Tsarou
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package bz.kakadu.calendar;
 
 import android.graphics.Canvas;
@@ -91,7 +104,7 @@ public class RangeCellDecoration extends SimpleCellDecoration implements OnDayCl
         return super.getDayTextPaint(day);
     }
 
-    public void setBoundsRange(@Nullable Day min, @Nullable Day max) {
+    public void setRangeBounds(@Nullable Day min, @Nullable Day max) {
         minRangeDay = min == null ? null : min.hashCode();
         maxRangeDay = max == null ? null : max.hashCode();
         checkValues();
@@ -148,13 +161,23 @@ public class RangeCellDecoration extends SimpleCellDecoration implements OnDayCl
     }
 
     @Nullable
+    public Integer getRangeDayHashFrom() {
+        return fromDay;
+    }
+
+    @Nullable
     public Day getRangeFrom() {
-        return new Day(fromDay);
+        return fromDay == null ? null : new Day(fromDay);
+    }
+
+    @Nullable
+    public Integer getRangeDayHashTo() {
+        return toDay;
     }
 
     @Nullable
     public Day getRangeTo() {
-        return new Day(toDay);
+        return toDay == null ? null : new Day(toDay);
     }
 
     @Override

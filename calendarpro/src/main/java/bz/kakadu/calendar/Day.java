@@ -1,12 +1,25 @@
+/*
+ * Copyright (c) 2019 Roman Tsarou
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package bz.kakadu.calendar;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.IntRange;
 import android.text.format.DateUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import static java.util.Calendar.APRIL;
 import static java.util.Calendar.AUGUST;
@@ -22,16 +35,22 @@ import static java.util.Calendar.OCTOBER;
 import static java.util.Calendar.SEPTEMBER;
 
 /**
+ * Container for date values: day, month, year.
+ * Hash is a single integer, for example 20161110.
  * Created on 10.11.2016
  *
  * @author Roman Tsarou
  */
-@SuppressWarnings("WrongConstant")
 public class Day implements Comparable<Day>, Cloneable {
-    private static final GregorianCalendar calendar = new GregorianCalendar();
+    private static final Calendar calendar = Calendar.getInstance();
     private int hash;
 
-    public Day(int date, @Month int month, int year) {
+    /**
+     * @param date  from 1 to 31
+     * @param month from {@link Calendar#JANUARY} to {@link Calendar#DECEMBER}
+     * @param year  any
+     */
+    public Day(@IntRange(from = 1, to = 31) int date, @Month int month, int year) {
         set(date, month, year);
     }
 
@@ -89,7 +108,7 @@ public class Day implements Comparable<Day>, Cloneable {
 
     @Override
     public String toString() {
-        return  "Day: " + hash;
+        return "Day: " + hash;
     }
 
     @Override
@@ -97,7 +116,13 @@ public class Day implements Comparable<Day>, Cloneable {
         return hash;
     }
 
-    public Day set(int date, @Month int month, int year) {
+    /**
+     * @param date  from 1 to 31
+     * @param month from {@link Calendar#JANUARY} to {@link Calendar#DECEMBER}
+     * @param year  any
+     * @return current object
+     */
+    public Day set(@IntRange(from = 1, to = 31) int date, @Month int month, int year) {
         hash = date + month * 100 + year * 10000;
         return this;
     }
@@ -125,14 +150,12 @@ public class Day implements Comparable<Day>, Cloneable {
     }
 
     @Override
-    protected Day clone() {
-        Day day = null;
+    public Day clone() {
         try {
-            day = (Day) super.clone();
+            return (Day) super.clone();
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return day;
     }
 
     public boolean between(Day first, Day last) {
@@ -147,6 +170,10 @@ public class Day implements Comparable<Day>, Cloneable {
         return hashCode() < other.hashCode();
     }
 
+    /**
+     * @param target for values (date, month, year) from this day.
+     *               Note: other values (time, etc.) will be reset to 0
+     */
     public void setTo(Calendar target) {
         target.clear();
         target.set(Calendar.YEAR, getYear());

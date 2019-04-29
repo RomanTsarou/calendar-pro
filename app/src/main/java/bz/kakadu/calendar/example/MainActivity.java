@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2019 Roman Tsarou
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package bz.kakadu.calendar.example;
 
 import android.os.Bundle;
@@ -5,7 +18,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import bz.kakadu.calendar.CalendarTheme;
 import bz.kakadu.calendar.CalendarViewPager;
 import bz.kakadu.calendar.Day;
 import bz.kakadu.calendar.RangeCellDecoration;
@@ -21,14 +33,10 @@ public class MainActivity extends AppCompatActivity {
         rangeCellDecoration = new RangeCellDecoration();
         Day day1 = Day.today().add(-10);
         Day day2 = Day.today().add(50);
-        rangeCellDecoration.setBoundsRange(day1, day2);
-//        int color = DrawUtils.getAttrColor(this, R.attr.colorPrimary);
-//        rangeCellDecoration.rangeEdgesColor = color;
-//        rangeCellDecoration.rangeColor = ColorUtils.setAlphaComponent(color, 127);
+        rangeCellDecoration.setRangeBounds(day1, day2);
         monthView.setCurrentMonth(day1, false);
         monthView.addDecoration(rangeCellDecoration);
         monthView.onDayClickListener = rangeCellDecoration;
-        CalendarTheme ct = new CalendarTheme(this);
     }
 
     public void dialog(View view) {
