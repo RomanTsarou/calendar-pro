@@ -16,7 +16,7 @@ repositories {
 }
 
  dependencies {
-   implementation 'com.github.RomanTsarou:calendar-pro:1.0.1'
+   implementation 'com.github.RomanTsarou:calendar-pro:1.0.2'
  }
 ```
 

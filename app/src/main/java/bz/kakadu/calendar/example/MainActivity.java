@@ -31,10 +31,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         CalendarViewPager monthView = findViewById(R.id.monthView);
         rangeCellDecoration = new RangeCellDecoration();
-        Day day1 = Day.today().add(-10);
-        Day day2 = Day.today().add(50);
-        rangeCellDecoration.setRangeBounds(day1, day2);
-        monthView.setCurrentMonth(day1, false);
+        rangeCellDecoration.setRangeBounds(
+                Day.today().add(-1),
+                Day.today().add(14)
+        );
+        rangeCellDecoration.setRange(
+                Day.today(),
+                Day.today().add(3));
+        monthView.setCurrentMonth(Day.today(), false);
         monthView.addDecoration(rangeCellDecoration);
         monthView.onDayClickListener = rangeCellDecoration;
     }

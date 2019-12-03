@@ -253,9 +253,11 @@ public class MonthView extends View {
         mCalendar.set(Calendar.DAY_OF_MONTH, 1);
 
         int firstDayOffset = mCalendar.get(Calendar.DAY_OF_WEEK) - mCalendar.getFirstDayOfWeek();
-        if (firstDayOffset == -1) {
-            firstDayOffset = 6;
+        if (firstDayOffset < 0) {
+            firstDayOffset = 7 + firstDayOffset;
         }
+
+
         mWeekCount = mCalendar.getActualMaximum(Calendar.WEEK_OF_MONTH);
         int daysCount = mCalendar.getActualMaximum(Calendar.DATE);
         resetCells();
@@ -263,7 +265,7 @@ public class MonthView extends View {
         for (int i = 0; i < daysCount; i++) {
             mCalendar.set(Calendar.DATE, i + 1);
 
-            cell = mDayItems[i + firstDayOffset];
+            cell = mDayItems[i + firstDayOffset];//FIXME
             cell.isVisible = true;
             cell.day.set(mCalendar);
             cell.value = String.valueOf(cell.day.getDate());
